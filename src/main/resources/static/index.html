@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>To-Do</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+<header class="topbar">
+    <span class="brand">To-Do</span>
+    <span id="who" class="who hidden"></span>
+    <a href="/swagger-ui.html" class="quiet" target="_blank" rel="noreferrer">API docs</a>
+    <button id="signout" class="ghost hidden" type="button">Sign out</button>
+</header>
+
+<main>
+    <section id="auth" class="card">
+        <h1 id="auth-title">Sign in</h1>
+        <p class="hint">On a fresh database the seeder creates <code>demo@todo.local</code> with password <code>Summer2026!</code>.</p>
+        <form id="auth-form" novalidate>
+            <label>
+                <span>Email</span>
+                <input name="email" type="email" autocomplete="username" required maxlength="255">
+            </label>
+            <label id="fullNameField" class="hidden">
+                <span>Name</span>
+                <input name="fullName" type="text" autocomplete="name" maxlength="120">
+            </label>
+            <label>
+                <span>Password</span>
+                <input name="password" type="password" autocomplete="current-password" required minlength="10" maxlength="72">
+            </label>
+            <div class="row">
+                <button class="primary" type="submit" id="auth-submit">Sign in</button>
+                <button class="ghost" type="button" id="auth-switch">Need an account?</button>
+            </div>
+            <ul class="errors" id="auth-errors"></ul>
+        </form>
+    </section>
+
+    <section id="workspace" class="hidden">
+        <div class="stats" id="stats"></div>
+
+        <div class="card filters">
+            <div class="row wrap">
+                <input id="search" type="search" placeholder="Search title or description" maxlength="60">
+                <select id="status">
+                    <option value="">Any status</option>
+                    <option value="TODO">To do</option>
+                    <option value="IN_PROGRESS">In progress</option>
+                    <option value="DONE">Done</option>
+                </select>
+                <select id="priority">
+                    <option value="">Any priority</option>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+                <select id="project">
+                    <option value="">Any project</option>
+                </select>
+                <select id="tag">
+                    <option value="">Any tag</option>
+                </select>
+                <label class="inline">
+                    <input id="overdue" type="checkbox">
+                    <span>Overdue only</span>
+                </label>
+                <button id="new-task" class="primary" type="button">New task</button>
+            </div>
+            <div class="row">
+                <span class="quiet">Sort by</span>
+                <select id="sortBy">
+                    <option value="dueAt">Due date</option>
+                    <option value="priority">Priority</option>
+                    <option value="createdAt">Created</option>
+                    <option value="updatedAt">Last change</option>
+                    <option value="title">Title</option>
+                    <option value="status">Status</option>
+                </select>
+                <button id="toggleOrder" class="ghost" type="button">Ascending</button>
+                <span class="grow"></span>
+                <button id="bulk-done" class="ghost hidden" type="button">Mark selected done</button>
+            </div>
+        </div>
+
+        <ul id="tasks" class="tasks"></ul>
+        <div class="row pager" id="pager"></div>
+        <p class="empty hidden" id="empty">Nothing matches these filters.</p>
+    </section>
+</main>
+
+<dialog id="editor">
+    <form id="task-form" method="dialog">
+        <h2 id="editor-title">New task</h2>
+        <label>
+            <span>Title</span>
+            <input name="title" type="text" required maxlength="200">
+        </label>
+        <label>
+            <span>Description</span>
+            <textarea name="description" rows="3" maxlength="2000"></textarea>
+        </label>
+        <div class="row wrap">
+            <label>
+                <span>Status</span>
+                <select name="status">
+                    <option value="TODO">To do</option>
+                    <option value="IN_PROGRESS">In progress</option>
+                    <option value="DONE">Done</option>
+                </select>
+            </label>
+            <label>
+                <span>Priority</span>
+                <select name="priority">
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM" selected>Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+            </label>
+            <label>
+                <span>Due</span>
+                <input name="dueAt" type="datetime-local">
+            </label>
+        </div>
+        <div class="row wrap">
+            <label class="grow">
+                <span>Project</span>
+                <select name="projectId">
+                    <option value="">None</option>
+                </select>
+            </label>
+            <label class="grow">
+                <span>Tags</span>
+                <input name="tags" type="text" placeholder="comma, separated">
+            </label>
+        </div>
+        <ul class="errors" id="editor-errors"></ul>
+        <div class="row end">
+            <button class="ghost" type="button" id="editor-cancel">Cancel</button>
+            <button class="primary" type="submit" id="editor-save">Save</button>
+        </div>
+        <input type="hidden" name="version">
+        <input type="hidden" name="id">
+    </form>
+</dialog>
+
+<dialog id="projectEditor">
+    <form id="project-form" method="dialog">
+        <h2>New project</h2>
+        <label>
+            <span>Name</span>
+            <input name="name" type="text" required maxlength="120">
+        </label>
+        <label>
+            <span>Description</span>
+            <input name="description" type="text" maxlength="500">
+        </label>
+        <label>
+            <span>Colour</span>
+            <input name="color" type="color" value="#2F6F53">
+        </label>
+        <ul class="errors" id="project-errors"></ul>
+        <div class="row end">
+            <button class="ghost" type="button" id="project-cancel">Cancel</button>
+            <button class="primary" type="submit">Save</button>
+        </div>
+        <input type="hidden" name="version">
+    </form>
+</dialog>
+
+<script src="js/app.js"></script>
+</body>
+</html>
