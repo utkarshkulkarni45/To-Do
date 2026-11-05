@@ -72,7 +72,8 @@ class ToDoContainerTest {
         assertThat(indexes).contains("ix_tasks_owner_listing", "ix_tasks_due_open");
         // The partial index on due date exists only for rows that can still be overdue.
         assertThat(indexes).doesNotContain("ix_tasks_due_all");
-        assertThat(indexes).anyMatch(name -> name.startsWith("pk_"));
+        // The inline PRIMARY KEY constraints are named <table>_pkey; only task_tags spells its key pk_.
+        assertThat(indexes).contains("users_pkey", "projects_pkey", "tags_pkey", "tasks_pkey");
     }
 
     @Test
