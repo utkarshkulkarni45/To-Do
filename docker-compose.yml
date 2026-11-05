@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_DB: todo
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: todo
+    volumes:
+      - todo-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todo -d todo"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  mailpit:
+    image: axllent/mailpit:v1.20
+    ports:
+      - "8025:8025"
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/todo
+      SPRING_DATASOURCE_USERNAME: todo
+      SPRING_DATASOURCE_PASSWORD: todo
+      JWT_SECRET: ${JWT_SECRET:?generate one with openssl rand -base64 32 and put it in .env}
+      JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-120}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@todo.local}
+      DEMO_EMAIL: ${DEMO_EMAIL:-demo@todo.local}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      REMINDERS_ENABLED: ${REMINDERS_ENABLED:-true}
+      REMINDER_FROM: todo@mailpit.local
+      PURGE_ENABLED: ${PURGE_ENABLED:-false}
+      SERVER_PORT: "8080"
+    ports:
+      - "8080:8080"
+
+volumes:
+  todo-data:
