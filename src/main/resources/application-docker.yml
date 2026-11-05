@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/todo}
+    username: ${SPRING_DATASOURCE_USERNAME:todo}
+    password: ${SPRING_DATASOURCE_PASSWORD:todo}
+  mail:
+    host: ${SMTP_HOST:mailpit}
+
+app:
+  seed-demo-data: ${SEED_DEMO_DATA:false}

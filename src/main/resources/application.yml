@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: to-do
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/todo_dev}
+    username: ${SPRING_DATASOURCE_USERNAME:todo}
+    password: ${SPRING_DATASOURCE_PASSWORD:todo}
+  jpa:
+    open-in-view: off
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:1025}
+    properties:
+      mail.smtp.connectiontimeout: 5s
+      mail.smtp.timeout: 5s
+      mail.smtp.writetimeout: 5s
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  health:
+    mail:
+      # Reminders need an SMTP relay, but running without one is a missing feature, not a dead app.
+      # Left on, this indicator tries to connect to the blank SMTP_HOST default and reports the whole
+      # application DOWN, so any deployment without mail credentials never becomes healthy.
+      enabled: false
+  info:
+    env:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId:-no-id}] %logger{28} - %msg%n"
+
+app:
+  admin-email: ${ADMIN_EMAIL:admin@todo.local}
+  jwt:
+    secret: ${JWT_SECRET:}
+    issuer: ${JWT_ISSUER:to-do-app}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+  rate-limit:
+    auth-requests-per-window: ${RATE_LIMIT_PER_MINUTE:10}
+    window: 60s
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  jobs:
+    reminder:
+      enabled: ${REMINDERS_ENABLED:true}
+      window: ${REMINDER_WINDOW:24h}
+      overdue-lookback: ${REMINDER_LOOKBACK:72h}
+      from: ${REMINDER_FROM:todo@localhost}
+    purge:
+      enabled: ${PURGE_ENABLED:false}
+      retention: ${PURGE_RETENTION:30d}
