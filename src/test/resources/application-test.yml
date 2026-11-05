@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    # Every setting that points at a server is supplied by @DynamicPropertySource from the
+    # test-scoped embedded PostgreSQL, so nothing here may win over it.
+    url: jdbc:postgresql://localhost:1/unused
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  seed-demo-data: false
+  jwt:
+    secret: dGVzdC1vbmx5LXNlY3JldC1mb3ItdGhlLWludGVncmF0aW9uLXRlc3RzLTMyYnl0ZXMh
+    issuer: to-do-app-test
+    expiration-minutes: 30
+  rate-limit:
+    auth-requests-per-window: 500
+  jobs:
+    reminder:
+      enabled: false
+    purge:
+      enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.todo.app: INFO
+    org.springframework: WARN
