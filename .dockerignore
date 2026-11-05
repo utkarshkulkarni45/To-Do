@@ -4,10 +4,10 @@ target
 .mvn
 mvnw
 mvnw.cmd
-pom.xml
 README.md
 docker-compose.yml
 Dockerfile
 .idea
 *.iml
 .env
+# pom.xml stays in the context: the Dockerfile copies it before the sources to resolve dependencies.
